@@ -7,9 +7,10 @@ use std::{
 use accessibility_sys::{
     kAXTrustedCheckOptionPrompt, pid_t, AXIsProcessTrusted, AXIsProcessTrustedWithOptions,
     AXUIElementCopyActionNames, AXUIElementCopyAttributeNames, AXUIElementCopyAttributeValue,
-    AXUIElementCopyParameterizedAttributeNames, AXUIElementCopyParameterizedAttributeValue,
-    AXUIElementCreateApplication, AXUIElementCreateSystemWide, AXUIElementGetPid,
-    AXUIElementGetTypeID, AXUIElementIsAttributeSettable, AXUIElementPerformAction, AXUIElementRef,
+    AXUIElementCopyElementAtPosition, AXUIElementCopyParameterizedAttributeNames,
+    AXUIElementCopyParameterizedAttributeValue, AXUIElementCreateApplication,
+    AXUIElementCreateSystemWide, AXUIElementGetPid, AXUIElementGetTypeID,
+    AXUIElementIsAttributeSettable, AXUIElementPerformAction, AXUIElementRef,
     AXUIElementSetAttributeValue,
 };
 use cocoa::{
@@ -198,6 +199,15 @@ impl AXUIElement {
                 ax_call_void(|| AXUIElementPerformAction(self.0, name.as_concrete_TypeRef()))
                     .map_err(Error::Ax)?,
             )
+        }
+    }
+
+    pub fn element_at_position(&self, x: f32, y: f32) -> Result<Self, Error> {
+        unsafe {
+            Ok(Self::wrap_under_create_rule(
+                ax_call(|target| AXUIElementCopyElementAtPosition(self.0, x, y, target))
+                    .map_err(Error::Ax)?,
+            ))
         }
     }
 
